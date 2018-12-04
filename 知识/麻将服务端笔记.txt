@@ -1,0 +1,21 @@
+room服：
+ 包括1.配置管理：cfgmgrs
+     2.游戏逻辑：gamelogic
+     3.房间管理：roommgr
+     4.辅助功能：队列服，分发管理器
+
+在roommgr中根据游戏创建不同游戏的fangka,startfangka时创建mahjong对应的逻辑。在handler/roomhandler中对玩家的各种操作进行路由(例如客户端room.roomHandler.playerOp，对应服务器中room/roomHandler.playerOp方法)
+connector.entryHandler.enterRoom
+
+session在connector中getSession中进行初始化
+
+
+
+
+pomelo架构分析
+  1.与客户端通讯
+   1.1设计到的重要组件 1.1.1session 1.1.2server组件 1.1.3connection组件 1.1.4connector 1.1.5proxy 1.1.6remote
+    1.1.1session是sessionService的包装组件用来维护用户的session信息。
+    1.1.3connection是connectionService的包装组件，用来做连接统计。
+    1.1.4connector组件会开启监听接口，承受客户端的连接。
+    1.1.2server会维护服务器的handler和handlerFilter。当用户的请求到达前端服务器时，如果前端服务器定义了相对应的handler，那么前端服务器会使用filter-handler链对其进行处理，然后将处理后的结果返回；如果对请求路由检查发现请求是发向后端服务器的，那么前端服务器会根据用户配置的router，计算出要发往的后端服务器id，然后发起rpc调用，后端服务器在接收到rpc调用时，从其中去除请求路由以及请求参数，发起filter-handler链对请求进行处理，完成调用，并将响应发给前端服务器，前端服务器再将响应发送给客户端。

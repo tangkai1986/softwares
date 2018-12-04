@@ -1,0 +1,4 @@
+ios build phases添加libraray
+build phases ->copy bundle resources（打包的时候是否一起打包）
+ios +是对外的函数
+ios -是内部调用的函数

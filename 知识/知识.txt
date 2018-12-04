@@ -1,0 +1,117 @@
+三个模板的区别主要在于使用引擎的方式：
+default 模板是将 引擎目录 中的源码拷贝一份到构建目录中，并在游戏工程中链接拷贝出来的这份代码。
+binary 模板是直接链接指定的 引擎目录 中的引擎预编译库。
+link 模板是构建的工程依赖于 引擎目录 中的引擎源码。
+这里 引擎目录 是指 Creator 偏好设置中指定的引擎目录。
+
+
+BPMFont和labelAtlas细节性能处理：
+由于 creator 的合图功能是在项目导出的时候进行的，所以需要对发布的项目进行合图批次渲染功能测试。
+在导入 BMFont 的资源的时候，需要把 .fnt 和相应的 png 图片放在同一个目录下面。
+LabelAtlas 底层渲染采用的跟 BMFont 一样的机制，所以也可以和 BMFont 及其它 UI 元素一起合图来实现批次渲染。
+
+
+js中...args代表无数个参数
+
+window.onerror = function(msg,url,line,col.error)
+window.__errorHandler = function(file, line, msg, error)
+
+
+java反射机制
+在 Android 应用中，cocos 引擎的渲染和 JS 的逻辑是在 GL（负责图像渲染） 线程中进行的，而 Android 本身的 UI 更新是在 App 的 UI （系统用户界面）线程进行的，所以如果我们在 JS 中调用的 Java 方法有任何刷新 UI 的操作，都需要在 UI 线程进行。
+
+
+对战用的sdk:
+matchvs
+
+
+
+js遇到过的坑：
+1、对象属性不要用箭头函数
+
+cc.Class({
+  a: ()=>{
+    // 错误，访问不到
+    this.b();
+  }, 
+  b: function(){}
+});
+2、对函数进行bind会返回新对象，事件监听无法取消
+
+this.node.on('touchstart', this.onTouch.bind(this));
+// 两次传递的this.onTouch.bind(this)是不同对象，内部判断===的时候是false，不能取消
+this.node.off('touchstart', this.onTouch.bind(this));
+正确使用：
+this.node.on('touchstart', this.onTouch,this);
+this.node.off('touchstart', this.onTouch,this);
+3、实数不能直接比较，0.4*7!==2.8，通过Math.abs(0.4*7-2.8)<1e-6来比较相等
+4、受JS单线程的影响，setInterval不精确，时间越长误差越大，要采用相对计时。
+5、基本类型赋值是值拷贝，对象赋值是指针拷贝，对象传递得深的时候容易误改数据。
+
+function modify(v) {
+  v.a = "World";
+}
+var v = {a: "Hello"};
+modify(v);
+console.log(v); // {a: "World"}
+6、变量提升
+
+var flag = true;
+function verify() {
+  if (flag) {
+    ......
+    var flag = false;
+  }
+}
+// 实际等价于：
+var flag = true;
+function verify() {
+  var flag; // = undefined
+  // 下面的if内容不会执行
+  if (flag) {
+    ......
+    flag = false;
+  }
+}
+7、闭包访问循环变量
+
+for (var i = 0; i <= 10; i++) {
+  this.nodes[i].on("touchstart", ()=>{
+    // 总是输出node 11 touched. 循环变量var i改成let i才正确。
+    console.log("node " + i + " touched.");
+  }
+}
+8、非的使用
+var x = 0; 
+    if(!x) {
+        console.log(x);  //输出x
+    }
+
+
+闭包：
+闭包，官方对闭包的解释是：一个拥有许多变量和绑定了这些变量的环境的表达式（通常是一个函数），因而这些变量也是该表达式的一部分。闭包的特点：
+　　1. 作为一个函数变量的一个引用，当函数返回时，其处于激活状态。
+　　2. 一个闭包就是当一个函数返回时，一个没有释放资源的栈区。
+返回函数的引用，
+例如
+//第2种写法  
+var Circle = function() {  
+   var obj = new Object();  
+   obj.PI = 3.14159;  
+     
+   obj.area = function( r ) {  
+       return this.PI * r * r;  
+   }  
+   return obj;  
+}  
+  
+var c = new Circle();  
+alert( c.area( 1.0 ) );  
+//第3种写法  
+var Circle = new Object();  
+Circle.PI = 3.14159;  
+Circle.Area = function( r ) {  
+       return this.PI * r * r;  
+}  
+  
+alert( Circle.Area( 1.0 ) );  

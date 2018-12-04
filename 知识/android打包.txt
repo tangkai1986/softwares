@@ -1,0 +1,1 @@
+string的比较用equals：String.valueOf(mode).equals("1")
