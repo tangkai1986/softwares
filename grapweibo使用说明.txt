@@ -1,0 +1,13 @@
+安装完python
+需要在cmd中安装pyquery和requests
+命令如下：
+pip install pyquery
+pip install requests,
+
+另外要拿到微博id和微博containerid
+
+在grapweibo.py脚本中修改5463009082为对应的微博id
+修改1076035463009082为对应的微博containerid
+修改完保存
+
+双击grapweibo.py在同级目录会生成weibo.json文件就是微博内容
