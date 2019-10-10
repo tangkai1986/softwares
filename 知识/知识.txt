@@ -18,7 +18,8 @@ window.__errorHandler = function(file, line, msg, error)
 
 
 java反射机制
-在 Android 应用中，cocos 引擎的渲染和 JS 的逻辑是在 GL（负责图像渲染） 线程中进行的，而 Android 本身的 UI 更新是在 App 的 UI （系统用户界面）线程进行的，所以如果我们在 JS 中调用的 Java 方法有任何刷新 UI 的操作，都需要在 UI 线程进行。
+在 Android 应用中，cocos 引擎的渲染和 JS 的逻辑是在 GL（负责图像渲染） 线程中进行的，而 Android 本身的 UI 更新是在 App 的 UI （系统用户界面）线程进行的，
+所以如果我们在 JS 中调用的 Java 方法有任何刷新 UI 的操作，都需要在 UI 线程进行。
 
 
 对战用的sdk:
@@ -104,7 +105,8 @@ var Circle = function() {
    }  
    return obj;  
 }  
-  
+
+父类被重写并且调用---和构造函数不同的是，父类被重写的方法并不会被 CCClass 自动调用，如果你要调用的话：
 var c = new Circle();  
 alert( c.area( 1.0 ) );  
 //第3种写法  
@@ -115,3 +117,21 @@ Circle.Area = function( r ) {
 }  
   
 alert( Circle.Area( 1.0 ) );  
+
+
+var Shape = cc.Class({
+    getName: function () {
+        return "shape";
+    }
+});
+var Rect = cc.Class({
+    extends: Shape,
+    getName: function () {
+
+        var baseName = this._super();
+
+        return baseName + " (rect)";
+    }
+});
+var obj = new Rect();
+cc.log(obj.getName());    // "shape (rect)"
