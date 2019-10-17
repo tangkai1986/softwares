@@ -129,7 +129,7 @@ var Rect = cc.Class({
     getName: function () {
 
         var baseName = this._super();
-
+		//var baseName = Shape.prototype.getName.call(this);
         return baseName + " (rect)";
     }
 });
