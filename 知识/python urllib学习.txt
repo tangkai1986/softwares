@@ -1,0 +1,250 @@
+1.urllib
+
+
+1.1 urlretrive 
+# urlretrieve 根据地址获取资源
+
+import urllib.request
+
+
+# 获取图片
+img_url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540795152&di=61a2d95d2e1c93ac5b02ac1470db6e1f&imgtype=jpg&er=1&src=http%3A%2F%2F09imgmini.eastday.com%2Fmobile%2F20180823%2F20180823115544_e073b8e2359f84422b3645b498843708_6_mwpm_03201609.jpg"
+# 传入url路径 和 本地的路径（将来获取数据后保存到哪里）
+response = urllib.request.urlretrieve(img_url, "download/girlfriend.jpg")
+
+
+# 文本
+text_url = "http://www.baidu.com/"
+urllib.request.urlretrieve(text_url, "download/baidu.html")
+
+# 视频
+video_url = "http://mvvideo11.meitudata.com/5bcc4b72dc93c4767.mp4?k=167be6c23d9d7682586a48bfa09a1b58&t=5bd168b3"
+urllib.request.urlretrieve(video_url, "download/shipin.mp4")
+
+
+1.2 urlopen
+import urllib.request
+
+url = "http://mvvideo10.meitudata.com/5bccbad35a67f1715.mp4?k=369ab095e8bb332ff9af0d31ea09ab29&t=5bd17262"
+
+res = urllib.request.urlopen(url)
+# res.read() # 二进制数据
+# 把二进制数据 保存到本地
+# 把二进制保存到本地 mode是wb write binary
+# with open("download/huoguo.mp4", "wb") as fp:
+#     fp.write(res.read())
+
+# 文本
+url = "http://www.baidu.com/"
+res = urllib.request.urlopen(url)
+# 往本地保存文本
+# 网络上是编码集一般使用的是utf-8 而 中文的windows操作系统默认使用gbk
+with open("baidu2.html", "w", encoding="utf-8") as fp:
+    fp.write(res.read().decode())  # read获取到的是二进制数据 现在要保存字符串 需要decode
+with open("download/baidu3.html", "wb") as fp:
+    fp.write(res.read())
+	
+	
+1.3
+
+1.3.1quote&unquote
+import urllib.parse
+
+url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540204756324&di=3f324fd6b20f41cccd5b47524c1b6d99&imgtype=0&src=http%3A%2F%2Fcdnimg103.lizhi.fm%2Faudio_cover%2F2014%2F02%2F22%2F9692932128899079_320x320.jpg"
+# quote把中文转成url编码
+code = urllib.parse.quote("狗")
+print(code)
+
+# 对url编码的内容 进行 解码
+word = urllib.parse.unquote("%E7%8B%97")
+print(word)
+
+1.3.2urlencode
+import urllib.request
+import urllib.parse
+url = "http://image.baidu.com/search/index?"
+# data = {
+#     "id": "方鹏",
+#     "sex": "gay",
+#     "age": "38",
+# }
+wd = "女朋友"
+data = {
+    "tn": "baiduimage",
+    "word": wd
+}
+url += urllib.parse.urlencode(data)
+print(url)
+response = urllib.request.urlopen(url)
+print(response.read().decode())
+
+
+1.4
+headers
+
+# 添加请求头
+import urllib.request
+import urllib.parse
+
+video_url = "http://upos-hz-mirrorkodo.acgvideo.com/dspxcode/i180723sy2v755qktua80w8os2etesps-1-56.mp4?um_deadline=1540209018&rate=500000&oi=1901878379&um_sign=1711cf42567f9ecd461acabb50c04ca2&gen=dsp&wsTime=1540209018&platform=html5"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36",
+}
+request = urllib.request.Request(video_url, headers=headers)
+response = urllib.request.urlopen(request)
+with open("download/demo.mp4", "wb") as fp:
+    fp.write(response.read())
+	
+1.5
+提交方式
+1.5.1 post
+# ajax的post请求
+import json
+import urllib.request
+import urllib.parse
+# 要请求的接口
+url = "https://fanyi.baidu.com/sug/"
+# 如果没有请求头 headers会被反扒
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0",
+
+}
+# data指的是post请求的表单数据
+formData = {
+    "kw": "hello",
+}
+
+request = urllib.request.Request(url,  headers=headers)
+# 注意传入的表单数据需要是二进制数据
+# 把字符串变成二进制
+response = urllib.request.urlopen(request, urllib.parse.urlencode(formData).encode())
+# 要把unicode符合 中的中文显示出来 需要使用unicode解码
+responseData = json.loads(response.read().decode("unicode_escape"))
+showDatas = responseData.get("data")[0].get("v")
+print(showDatas)
+
+1.5.2 get
+# 用户输入 从第几条开始 需要多少条数据
+# 把电影排行的数据 返回给用户
+import urllib.request
+
+start = input("请输入从哪里开始:")
+limit = input("一共需要多少条数据:")
+url = "https://movie.douban.com/j/chart/top_list?type=5&interval_id=100%3A90&action=&" + "start=" + start + "&" + "limit=" + limit
+
+response = urllib.request.urlopen(url)
+print(response.read().decode())
+
+# ajax的get请求 和普通的get请求写起来是一样的
+
+1.6错误
+URLError\HTTPError
+
+1.6.1URLError
+(1)没有网
+(2)服务器连接失败
+(3)找不到指定的服务器
+
+1.6.2HTTPError
+    是URLError的子类
+    两个同时捕获的时候，需要将HTTPError写到上面，URLError写到下面
+
+1.7handler处理器、自定义Opener
+
+    ProxyHandler：为请求设置代理
+    HTTPCookieProcessor：处理 HTTP 请求中的 Cookies
+    HTTPDefaultErrorHandler：处理 HTTP 响应错误。
+    HTTPRedirectHandler：处理 HTTP 重定向。
+    HTTPPasswordMgr：用于管理密码，它维护了用户名密码的表。
+    HTTPBasicAuthHandler：用于登录认证，一般和 HTTPPasswordMgr 结合使用。
+	
+    urlopen()  给一个url，发送请求，获取响应
+    Request()  定制请求头，创建请求对象
+    
+    高级功能：使用代理,cookie
+    request.HTTPHandler() # 用于保存http请求与响应的会话信息
+    request.bulid_opener(handler)   # 用于打开一个远程的url链接，并且携带handler发起请求
+    request.HTTPCookieProcessor # 这个对象是httphandler的子类，专门用于保存cookie信息
+    
+    例子:
+    import urllib.request
+    import urllib.parse
+
+
+    url = "https://www.baidu.com/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0",
+    }
+
+    # 创建一个handler
+    handler = urllib.request.HTTPHandler()
+    # 通过handler创建一个opener
+    # opener就是一个对象，一会发送请求的时候，直接使用opener的方法即可，不要使用urlopen
+    opener = urllib.request.build_opener(handler)
+
+    # 构建请求对象
+    request = urllib.request.Request(url, headers=headers)
+    # 发送请求
+    response = opener.open(request)
+    print(response.read().decode())
+
+1.8代理
+兔子代理 202.101.249.51：6879
+    有些网站做了浏览频率限制。如果我们请求该网站频率过高。该网站会被封IP，禁止我们的访问。所以我们需要使用代理来突破这“枷锁”。
+    代理是什么?
+    生活中的代理:微商、代练、代考、代驾
+    
+    程序中的代理
+        正向代理：代理客户端获取数据
+        
+        反向代理：代理服务端提供数据
+    配置:
+        浏览器配置
+            设置==>>高级==>>代理==>>局域网设置==>>
+            为lan使用代理==>>
+        代码配置
+		
+	例如:
+	proxy_header = request.ProxyHandler({ 'http':'101.236.19.165:8866' }) 
+	opener = request.build_opener(proxy_header) 
+	request.install_opener(opener) 
+	response = request.urlopen(url+"/ip") 
+	print(response.read().decode()) 
+	#打印结果 {"origin":"101.236.19.165"}
+
+
+1.9cookie
+    cookie是什么
+        http协议，无状态
+        网站登录时候的问题，用来记录用户身份的
+    
+    模拟登录
+    
+    # 创建一个cookiejar对象
+    cj = http.cookiejar.CookieJar()
+    # 通过cookiejar创建一个handler
+    handler = urllib.request.HTTPCookieProcessor(cj)
+    # 根据handler创建一个opener
+    opener = urllib.request.build_opener(handler)
+
+1.10urllib 处理 https 请求ssl 证书验证
+import ssl
+
+#处理HTTPS请求 SSL证书验证 忽略认证 比如12306 网站
+url = "https://www.12306.cn/mormhweb/"
+#添加忽略ssl证书验证
+context = ssl._create_unverified_context()
+header = headers = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_0) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11"}
+req = request.Request(url, headers=header)
+res = request.urlopen(req,context = context)
+print(res.read().decode())
+
+1.11 urlencode/urlparse
+urllib.urlencode
+把字典数据转换为url编码（相当于把你想要请求的数据合成为url）
+用途：
+对url参数进行编码
+对post上去的form数据进行编码
+urlparse.parse_qs
+把url编码转化为字典数据（恰好和urlencode相反）

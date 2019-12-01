@@ -135,3 +135,19 @@ var Rect = cc.Class({
 });
 var obj = new Rect();
 cc.log(obj.getName());    // "shape (rect)"
+
+
+对象池相当于是一个原型模式
+
+cocos2dx Jni调用需要线程切换 ui线程和GL线程
+cocos2d-x for Android 运行在多线程环境下，所以在 Lua/C++ 和 Java 交互时需要注意选择适当的线程。
+
+cocos2d-x 在 Android 上以两个线程来运行，分别是负责图像渲染的 GL 线程和负责 Android 系统用户界面的 UI 线程。
+
+在 cocos2d-x 启动后，Lua/C++代码将由 GL 线程调用，因此从 Lua/C++中调用的 Java 方法如果涉及到系统用户界面的显示、更新操作，那么就必须让这部分代码切换到 UI 线程上去运行。
+反之亦然，从 Java 调用 Lua/C++代码时，需要让这个调用在 GL 线程上执行，否则 Lua/C++代码虽然执行了，但会无法更新 cocos2d-x 内部状态。
+   确保 Lua/C++function 跑在 GL 线程（子线程），Java 代码跑在 UI 线程（主线程）。
+
+简单说说，我相信每个人做Android的都知道的更新UI只能在UI线程进行刷新，这是一个非常霸道的条款
+
+   而且，我们的UI线程不能被阻塞。
